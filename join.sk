@@ -1,0 +1,31 @@
+on first join:
+    set {firstJoin::%uuid of player%} to now
+
+on join:
+    set {lastJoin::%uuid of player%} to now
+    if {firstJoin::%uuid of player%} is not set:
+        set {firstJoin::%uuid of player%} to now
+
+command /lastjoin [<offline player>]:
+    aliases: /lj
+    trigger:
+        if arg-1 is set:
+            send "&c&lServer:&r &6%arg-1% last joined the server on %{lastJoin::%uuid of arg-1%}%." to player
+        else:
+            send "&c&lServer:&r &6You last joined the server on %{lastJoin::%uuid of player%}%." to player
+
+command /joindate [<offline player>]:
+    aliases: /jd
+    trigger:
+        if arg-1 is set:
+            send "&c&lServer:&r &6%arg-1% first joined the server on %{firstJoin::%uuid of arg-1%}%." to player
+        else:
+            send "&c&lServer:&r &6You first joined the server on %{firstJoin::%uuid of player%}%." to player
+			
+command /playtime [<offline player>]:
+    aliases: /pt
+    trigger:
+        if arg-1 is set:
+            send "&c&lServer:&r &6%arg-1%'s time played is %arg-1's time played%." to player
+        else:
+            send "&c&lServer:&r &6Your time played is %player's time played%." to player

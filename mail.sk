@@ -1,0 +1,81 @@
+﻿command /mail [<text>] [<text>] [<text>]:
+	trigger:
+		if arg-1 is set:
+			if arg-1 is "help":
+				send "&c&lMail:"
+				send "<ttp:&7See how many letters you have><sgt:/mail check>&6/mail check"
+				send "<ttp:&7Check a specific letter><sgt:/mail check>&6/mail check &c[number]"
+				send "<ttp:&7Send a letter to a player><sgt:/mail send>&6/mail send &7<player> &c[message]"
+				send "<ttp:&7Delete a specific letter><sgt:/mail clear>&6/mail clear &c[number]"
+				send "<ttp:&7Check all your mail><sgt:/mail check all>&6/mail check all"
+			else:
+				if arg-1 is "send":
+					if arg-2 is set:
+						if arg-2 parsed as an offline player is an offline player:
+							if arg-2 parsed as an offline player is not player:
+								if arg-3 is set:
+									if {MailAmount::%arg-2%} is not greater than 9:
+										add "&c[Mail] &7%player% -> Me: &6%arg-3%" to {mailbox::%arg-2%::*}
+										add 1 to {MailAmount::%arg-2%}
+										send "&c&lMail:&r&6 Success! You just sent the following to %arg-2%:%newline%&7%arg-3%"
+									else:
+										send "&c&lMail:&r&6 Can't send! Player's inbox is full!"
+								else:
+									send "&c&lMail:&r&6 No message to send."
+							else:
+								send "&c&lMail:&r&6 You cannot send mail to yourself."
+						else:
+							send "&c&lMail:&r&6 A player named &7%arg-2% &6does not exist."
+					else:
+						send "&c&lMail:&r&6 Please specify a player."
+				else:
+					if arg-1 is "check":
+						if {MailAmount::%player%} > 0:
+							if arg-2 is not set:
+								send "&c&lMail:&r&6 you have %{MailAmount::%player%}% mail(s) in your mailbox. Do /mail check <number> to check or /mail clear to delete."
+							else:
+								if arg-2 is "all":
+									loop {mailbox::%player%::*}:
+										send "%loop-value%"
+								else:
+									if arg-2 parsed as a number is a number:
+										if {mailbox::%player%::%arg-2%} exists:
+											send "%{mailbox::%player%::%arg-2%}%"
+										else:
+											send "&c&lMail:&r&6 That letter does not exist."
+									else:
+										send "&c&lMail:&r&6 Please specify which mail to check."
+						else:
+							send "&c&lMail:&r&6 You have no mail to check."
+					else:
+						if arg-1 is "clear":
+							if {MailAmount::%player%} > 0:
+								if arg-2 is set:
+									if arg-2 parsed as a number is a number:
+										if {mailbox::%player%::%arg-2%} exists:
+											delete {mailbox::%player%::%arg-2%}
+											loop {mailbox::%player%::*}:
+												add {mailbox::%player%::%loop-index%} to {placeholder::%player%::*}
+											set {mailbox::%player%::*} to {placeholder::%player%::*}
+											subtract 1 from {MailAmount::%player%}
+											send "&c&lMail:&r&6 Deleted mail %arg-2%."
+										else:
+											send "&c&lMail:&r&6 That letter does not exist."
+								else:
+									delete {mailbox::%player%::*}
+									set {MailAmount::%player%} to 0
+									send "&c&lMail:&r&6 Mailbox cleared."
+							else:
+								send "&c&lMail:&r&6 You have no mail to delete."
+						else:
+							send "&c&lMail:&r&6 Please do /mail help for more info."
+		else:
+			send "&c&lMail:&r&6 Please specify an action to perform."
+
+on player join:
+	if {MailAmount::%player%} > 0:
+		wait 1 second
+		send "&6You have %{MailAmount::%player%}% letter(s) in your mailbox. Do /mail check <number> to check or /mail clear to delete."
+
+on tab complete of "/mail":
+	set tab completions for position 1 to "check", "send", "help" and "clear"

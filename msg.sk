@@ -1,0 +1,23 @@
+command /msg <player> <text>:
+	aliases: /message
+	description: Whisper another player
+	usage: /msg <player> <message>
+	trigger:
+		if arg-1 is not player:
+			set {chat.private.reply::%player%} to arg 1
+			set {chat.private.reply::%arg 1%} to player
+			send "&c[MSG] &7Me -> %arg 1%: &6%arg 2%" to player
+			send "&c[MSG] &7%player% -> Me: &6%arg 2%" to arg 1
+		else:
+			send "&cYou cannot do that" to player
+
+command /reply <text>:	
+	description: Reply command.
+	usage: /reply <message>
+	aliases: /r
+	trigger:
+		if {chat.private.reply::%player%} is online:
+			send "&c[MSG] &7Me -> %{chat.private.reply::%player%}% &6%arg-1%" to player
+			send "&c[MSG] &7%player% -> Me: &6%arg-1%" to {chat.private.reply::%player%}
+		else:
+			send "&cPlayer is offline" to player

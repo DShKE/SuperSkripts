@@ -1,0 +1,37 @@
+command /afk:
+	trigger:
+		set {position::%player%} to location of player
+		set player's tablist name to "&c[AFK] &r%player%"
+		set {afk::%player%} to "true"
+		send action bar "&6 You were marked as AFK."
+
+every 5 seconds:
+	loop all players:
+		set loop-player's tab list header to "&6&m==========================%newline%&6Welcome %loop-player%!%newline% "
+		set loop-player's tab list footer to " %newline%&6Ping:&r %loop-player's ping%&7ms&a TPS:&r %tps from the last minute%%newline%&e&lplayers:&6 %number of all players%&7/&6%max players%%newline%&6&m=========================="
+		if {afk::%loop-player%} is "true":
+			if position of loop-player is not {position::%loop-player-1%}:
+				set loop-player's tablist name to "%loop-player% &7%loop-player's ping%ms"
+				set {afk::%loop-player%} to "false"
+				send action bar "&cYou have been un-marked as AFK" to loop-player
+		else:
+			set loop-player's tablist name to "%loop-player% &7%loop-player's ping%ms"
+
+every 1 minute:
+	loop all players:
+		if position of loop-player is {position::%loop-player%}:
+			if {afk::%loop-player-1%} is not "true":
+				set loop-player's tablist name to "&c[AFK] &r%loop-player%"
+				set {afk::%loop-player%} to "true"
+				send action bar "&cYou have been marked as AFK" to loop-player
+		set {position::%loop-player%} to loop-player's position
+
+on player join:
+	loop all players:
+		set loop-player's tab list header to "&6&m==========================%newline%&6Welcome %loop-player%!%newline% "
+		set loop-player's tab list footer to " %newline%&6Ping:&r %loop-player's ping%&7ms&a TPS:&r %tps from the last minute%%newline%&e&lplayers:&6 %number of all players%&7/&6%max players%%newline%&6&m=========================="
+		
+on leave:
+	loop all players:
+		set loop-player's tab list header to "&6&m==========================%newline%&6Welcome %loop-player%!%newline% "
+		set loop-player's tab list footer to " %newline%&6Ping:&r %loop-player's ping%&7ms&a TPS:&r %tps from the last minute%%newline%&e&lplayers:&6 %number of all players%&7/&6%max players%%newline%&6&m=========================="

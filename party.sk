@@ -1,0 +1,158 @@
+command /party [<text>] [<text>]:
+	aliases: /p
+	trigger:
+		if arg-1 is "help":
+			send "party:"
+			send "<ttp:Invite a player to your party><sgt:/party invite>&6/party invite &6<player>"
+			send "<ttp:Accept a party invite><sgt:/party accept>&6/party &caccept &6<player>"
+			send "<ttp:Leave a party><sgt:/party leave>&6/party leave"
+			send "<ttp:Promote a player to party leader><sgt:/party promote>&6/party promote &6<player>"
+			send "<ttp:Kick a player from your party><sgt:/party kick>&6/party kick &6<player>"
+			send "<ttp:Send a message in party chat><sgt:/party chat>&6/party chat &c[message]"
+			send "<ttp:Toggle automatic chatting in party><sgt:/party chat toggle>&6/party chat toggle"
+		else if arg-1 is "create":
+			if {partyof::%player%::owner} is not set:
+				add player to {party::%player%::*}
+				set {partyof::%player%::owner} to player
+				send "&c&lParty:&r&6 You created a party."
+			else:
+				send "&c&lParty:&r&6 Leave your party to create a new one."
+		else if arg-1 is "invite":
+			if arg-2 parsed as a player is set:
+				if arg-2 parsed as a player is not player:
+					if {partyof::%player%::owner} is player:
+						set {party::%player%::invited::%arg-2%} to "true"
+						send "&c&lParty:&r&6 You invited &7%arg-2% &6to your party."
+						send "&c&lParty:&r&6 You were invited to &7%player%'s &6party. Type /party accept &7%player% &6to join." to arg-2 parsed as a player
+						wait 5 minutes
+						if {party::%player%::invited::%arg-2%} is true:
+							delete {party::%player%::invited::%arg-2%}
+							send "&c&lParty:&r&6 Your party invite to &7%arg-2% &6has expired."
+							send "&c&lParty:&r&6 Your party invite expired." to arg-2 parsed as a player
+					else:
+						send "&c&lParty:&r&6 You are not the party owner."
+				else:
+					send "&c&lParty:&r&6 You can't invite yourself."
+			else:
+				send "&c&lParty:&r&6 Please specify a player."
+		else if arg-1 is "accept":
+			if arg-2 parsed as a player is set:
+				if {partyof::%player%::owner} is not set:
+					if {party::%arg-2%::invited::%player%} is "true":
+						add player to {party::%arg-2%::*}
+						set {partyof::%player%::owner} to arg-2
+						delete {party::%player%::invited::%player%}
+						send "&c&lParty:&r&7 %player% &6joined the party." to {party::%arg-2%::*}
+					else:
+						send "&c&lParty:&r&6 Invalid invite."
+				else:
+					send "&c&lParty:&r&6 Leave your party to join a new one."
+			else:
+				send "&c&lParty:&r&6 Please specify a player."
+		else if arg-1 is "leave":
+			if {partyof::%player%::owner} is set:
+				if {partyof::%player%::owner} is not player:
+					send "&c&lParty:&r&7 %player% &6has left the party." to {party::%{partyof::%player%::owner}%::*}
+					remove player from {party::%{partyof::%player%::owner}%::*}
+					delete {partyof::%player%::owner}
+				else:
+					if size of {party::%player%::*} > 2:
+						send "&c&lParty:&r&6 You cannot leave because you are the owner."
+					else:
+						remove player from {party::%{partyof::%player%::owner}%::*}
+						delete {partyof::%player%::owner}
+						delete {party::%{partyof::%player%::owner}%::*}
+						send "&c&lParty:&r&6 You left the party."		
+			else:
+				send "&c&lParty:&r&6 You are not in a party."
+		else if arg-1 is "promote":
+			if {partyof::%player%::owner} is set:
+				if arg-2 parsed as a player is set:
+					if arg-2 parsed as a player is not player:
+						set {_old} to {partyof::%player%::owner}
+						set {_oldPlayers::*} to {party::%{_old}%::*}
+						delete {party::%{_old}%::*}
+						loop {_oldPlayers::*}:
+							add loop-value to {party::%arg-2 parsed as a player%::*}
+							set {partyof::%loop-value%::owner} to arg-2 parsed as a player
+						send "&c&lParty:&r&6 %arg-2 parsed as a player% has been promoted to party leader." to {party::%{partyof::%player%::owner}%::*}
+					else:
+						send "&c&lParty:&r&6 You can't promote yourself."
+				else:
+					send "&c&lParty:&r&6 Please specify a player."
+			else:
+				send "&c&lParty:&r&6 You are not in a party."
+		else if arg-1 is "kick":
+			if arg-2 parsed as a player is set:
+				if {partyof::%player%::owner} is set:
+					if {partyof::%player%::owner} is player:
+						if arg-2 parsed as a player is not player:
+							make arg-2 parsed as a player execute "/party leave"
+						else:
+							send "&c&lParty:&r&6 You cannot kick yourself."
+					else:
+						send "&c&lParty:&r&6 You are not the party owner."
+				else:
+					send "&c&lParty:&r&6 You are not in a party."
+			else:
+				send "&c&lParty:&r&6 Please specify a player."
+		else if arg-1 is "chat":
+			if {partyof::%player%::owner} is set:
+				if arg-2 is set:
+					if arg-2 is "toggle":
+						if {party::%player%::chat} is true:
+							delete {party::%player%::chat}
+							send "&c&lParty:&r&6 Your party chat has been disabled."
+						else:
+							set {party::%player%::chat} to true
+							send "&c&lParty:&r&6 Your party chat has been enabled."
+					else:
+						send "&c[Party]&7 %player%: &6%arg-2%" to {party::%{partyof::%player%::owner}%::*}
+				else:
+					send "&c&lParty:&r&6 Please specify an action."
+			else:
+				send "&c&lParty:&r&6 You aren't in a party."
+		else if arg-1 is "info":
+			if {partyof::%player%::owner} is set:
+				send "&c&lParty:&r&6 You are in %{partyof::%player%::owner}%'s party with %size of {party::%{partyof::%player%::owner}%::*}% total players."
+			else:
+				send "&c&lParty:&r&6 You are not in a party."
+		else:
+			send "&c&lParty:&r&6 Do /party help &6for more info."
+		
+on chat:
+	if {party::%player%::chat} is true:
+		cancel event
+		send "&c[Party]&7 %player%: &6%message%" to {party::%{partyof::%player%::owner}%::*}
+
+on quit:
+	if {partyof::%player%::owner} is set:
+		if {partyof::%player%::owner} is player:
+			loop {party::%player%::*}:
+				delete {partyof::%player%::owner}
+				send "&c&lParty:&r&6 The party has been disbanded as the party owner left the server." to loop-value
+			clear {party::%player%::*}
+		clear {party::%{partyof::%player%::owner}%::*}
+		delete {partyof::%player%::owner}
+		delete {party::%player%::chat}
+	loop {party::invited::%player%::*}:
+		delete {party::invited::%loop-value%::%player%}
+	clear {party::invited::%player%::*}
+	
+on tab complete of "/party" or "/p":
+	set tab completions for position 1 to "invite", "promote", "accept", "join", "kick", "help", "create", "info", "leave" and "chat"
+	if tab arg-1 is "invite":
+		loop all players:
+			add loop-player to tab completions
+	else if tab arg-1 is "promote":
+		loop {party::%{partyof::%player%::owner}%::*}:
+			add loop-value to tab completions
+	else if tab arg-1 is "accept" or "join":
+		loop all players:
+			add loop-player to tab completions
+	else if tab arg-1 is "kick":
+		loop {party::%{partyof::%player%::owner}%::*}:
+			add loop-value to tab completions
+	else if tab arg-1 is "chat":
+		set tab completions for position 2 to "toggle"
+
