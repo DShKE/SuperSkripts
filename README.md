@@ -1,5 +1,5 @@
 # SuperSkripts
-### ⚠️ All scripts in this pack require [Skript](https://github.com/SkriptLang/Skript) to run
+## Elevate your Minecraft server using this pack of skripts and avoid the hassle of installing bloated plugins that slow your server performance<br><br>⚠️ All scripts in this pack require [Skript](https://github.com/SkriptLang/Skript) to run.
 
 # Scripts included in the pack:
 
