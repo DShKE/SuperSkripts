@@ -63,7 +63,6 @@ A quick and lightweight whisper and reply system.
 
 **Features:**
 * **Easy Replies:** Saves who you were talking to so you can reply quickly without typing full names over and over.
-* **Safety Checks:** Stops players from trying to message themselves.
 
 **Commands:**
 
